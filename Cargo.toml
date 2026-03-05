@@ -1,0 +1,31 @@
+[package]
+name = "auction"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+core_affinity = "0.8.3"
+criterion = "0.8.2"
+good_lp = { version = "1.14.2", features = ["highs", "lp-solvers"], default-features = false }
+hdrhistogram = "7.5.4"
+highs-sys = "1.12.1"
+nexus-channel = "1.1.0"
+proptest = "1.10.0"
+rand = "0.10.0"
+rand_chacha = "0.10.0"
+rust_decimal = { version = "1.40.0", features = ["macros"] }
+rustc-hash = "2.1.1"
+strum = { version = "0.27", features = ["derive"] }
+tracing = "0.1.44"
+tracing-appender = "0.2.4"
+tracing-subscriber = { version = "0.3.22", features = ["env-filter", "fmt"] }
+
+[[bench]]
+name = "auction"
+harness = false
+
+[profile.release]
+debug = true
+opt-level = 3
+lto = true 
+codegen-units = 1
