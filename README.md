@@ -34,7 +34,7 @@ The purpose is to explore the trade-offs between clarity and performance in a re
 Correctness is treated as a primary design concern.
 
 __Property-based testing__
-Core economic [`invariants`](src/engine/matcher/stream/highs.rs#L630) are validated using proptest over randomly generated order books.
+Core economic [`invariants`](src/engine/matcher/stream/highs.rs#L670) are validated using proptest over randomly generated order books.
 
 __Differential testing (work in progress)__
 The project includes two matching implementations:
