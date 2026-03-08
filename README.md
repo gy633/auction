@@ -9,15 +9,25 @@ It is intentionally scoped as a learning and design exercise — not a productio
 
 The system models a simplified periodic auction pipeline:
 
-- Ingress → Sequencer → Scheduler → Matcher
+__Ingress__ → __Sequencer__ → __Matcher__
 
-- Time-based batch cutoffs (based on ingress timestamps)
+The sequencer is responsible for both:
 
-- Atomic batch clearing
+- maintaining timestamp-based batch eligibility, and
 
-- Explicit latency measurement across stages
+- scheduling auctions by sending `RunAuction` messages to the matcher.
 
-The architecture emphasizes determinism, separation of concerns, and performance transparency.
+Key characteristics:
+
+- __Timestamp-based batch eligibility__: orders are assigned to batches according to ingress timestamps.
+
+- __Atomic batch clearing__: each auction is cleared as a single batch.
+
+- __Explicit latency measurement__: latency is measured across the main stages of the pipeline.
+
+The design emphasizes clear separation of responsibilities, a deterministic matching core, and transparent latency behavior.
+In the current prototype, auction triggering is handled from within the sequencer’s event-processing path rather than by a fully independent scheduler, so actual auction start can lag the intended cutoff under sparse traffic or backlog.
+
 
 # Matching Engine
 
@@ -53,9 +63,16 @@ An aspirational extension of this project is to amend it to formalize core aucti
 
 __Known limitations__:
 
-- Orders where `bid_price == ask_price` are not matched correctly.
+- Orders where `bid_price == ask_price` are not yet matched correctly. This is a tie-breaking / formulation issue in the current LP setup.
 
-- Order cancellation, carry-forward of unmatched orders, persistence, and distributed scaling are intentionally not implemented.
+- Auction eligibility is based on ingress timestamps, but auction triggering is currently coupled to event processing rather than an independent scheduler. Under sparse traffic or backlog, actual auction start can lag the intended cutoff.
+
+- Auctions for symbols in the same shard are currently executed sequentially on a single thread. This keeps the prototype simple, but means per-symbol auction start times can drift when multiple symbols become due at roughly the same time.
+
+- Order cancellation, carry-forward of unmatched orders, WAL/replay recovery, persistence, and distributed scaling are intentionally not implemented.
+
+- There is no dedicated deterministic benchmark mode; performance measurements are taken from normal runs and therefore include scheduler and backpressure effects.
+
 
 This prototype focuses on understanding batching semantics, LP clearing, and latency behavior, not production completeness.
 
