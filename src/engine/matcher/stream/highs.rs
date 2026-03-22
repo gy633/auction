@@ -171,6 +171,7 @@ impl Highs {
     // Roll unmatched and remainder of partially filled orders forward
     fn clear(&mut self) {
         self.idx = 0;
+        self.col_values.fill(0.0);
 
         self.sellers_idx.clear();
         self.buyers_idx.clear();
@@ -193,8 +194,6 @@ impl Highs {
         if self.sellers_idx.is_empty() || self.buyers_idx.is_empty() {
             return;
         }
-
-        self.col_values.fill(0.0);
 
         let n_orders = self.sellers_idx.len() + self.buyers_idx.len();
         self.col_cost[n_orders..].fill(0.0);
@@ -239,7 +238,6 @@ impl Highs {
         let status = unsafe { highs_sys::Highs_run(self.instance) };
         assert_eq!(status, highs_sys::kHighsStatusOk as HighsInt);
 
-        self.col_values.fill(0.0);
         let status = unsafe {
             highs_sys::Highs_getSolution(
                 self.instance,
